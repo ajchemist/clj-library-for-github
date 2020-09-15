@@ -1,0 +1,71 @@
+name: Lint
+
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+
+jobs:
+  clj-kondo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # - uses: DeLaGuardo/clojure-lint-action@f712330e03eec4daa36da7045213190083aca4dd
+      #   with:
+      #     clj-kondo-args: --lint src # --config .clj-kondo/config.edn
+      #     # check-name is optional
+      #     check-name: This is a report name
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup clj-kondo
+        uses: DeLaGuardo/setup-clj-kondo@v1
+        with:
+          version: '2020.09.09'
+      - name: Lint
+        run: |
+          clj-kondo --lint src/core
+          # --config .clj-kondo/config.edn
+
+
+  eastwood__ubuntu-latest:
+    name: eastwood@ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+
+      - name: Cache local maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+
+      - name: Cache gitlibs
+        uses: actions/cache@v2
+        with:
+          path: ~/.gitlibs
+          key: ${{ runner.os }}-gitlibs-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-gitlibs-
+
+
+      - name: Set up jdk
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+          java-package: 'jdk'
+
+
+      - name: Set up clojure-cli
+        uses: DeLaGuardo/setup-clojure@2.0
+        with:
+          tools-deps: '1.10.1.561'
+
+
+      - name: Run eastwood
+        run: clojure -A:eastwood
