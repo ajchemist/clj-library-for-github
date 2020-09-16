@@ -80,7 +80,7 @@
 (defn github-repo-actions-put-secret
   "Workaround IllegalAccessError when using JNI library"
   [owner repo secret-name secret-value key key-id basic-auth]
-  (dosh "clojure" "-Srepro" "-Sdeps" "'{:deps {ajchemist/tools.github.alpha {:git/url \"https://github.com/ajchemist/tools.github.alpha\" :sha \"75338a47308667240b6760992a0b5c04a76f0cf7\"}}}'"
+  (dosh "clojure" "-Srepro" "-Sdeps" "{:deps {ajchemist/tools.github.alpha {:git/url \"https://github.com/ajchemist/tools.github.alpha\" :sha \"75338a47308667240b6760992a0b5c04a76f0cf7\"}}}"
         "-m" "user.tools.github.alpha.script.repo-actions" "put-secret"
         "--owner" owner
         "--repo" repo
