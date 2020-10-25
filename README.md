@@ -10,7 +10,7 @@
 
 
 ``` shell
-# clj -A:new -M:new
+# clj -M:new
 
 
 clj -Sdeps '{:deps {seancorfield/clj-new {:mvn/version "1.1.216"}}}' -m clj-new.create \
