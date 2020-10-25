@@ -43,12 +43,12 @@ jobs:
       - name: Set up clojure-cli
         uses: DeLaGuardo/setup-clojure@2.0
         with:
-          tools-deps: '1.10.1.561'
+          tools-deps: '1.10.1.727'
 
 
       - name: Test runner
         env:
-          TESTOPT: "-A:test:test-runner"
+          TESTOPT: "-M:test:test-runner"
         run: |
           cd library-for-github
           clojure $TESTOPT

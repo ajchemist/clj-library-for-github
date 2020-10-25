@@ -24,7 +24,7 @@ jobs:
       - name: Setup clj-kondo
         uses: DeLaGuardo/setup-clj-kondo@v1
         with:
-          version: '2020.09.09'
+          version: '2020.10.10'
       - name: Lint
         run: |
           cd library-for-github
