@@ -38,17 +38,26 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-
-
       - name: Set up clojure-cli
-        uses: DeLaGuardo/setup-clojure@2.0
+        uses: DeLaGuardo/setup-clojure@master
         with:
-          tools-deps: '1.10.1.727'
+          cli: "1.10.3.855"
 
 
       - name: Test runner
         env:
-          TESTOPT: "-M:test:test-runner"
+          TESTOPT: "-X:test:test-runner"
         run: |
           cd library-for-github
           clojure $TESTOPT
+
+
+      - name: Job digest -> telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+          JOB_CONTEXT: ${{ toJSON(job) }}
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: |
+          cd library-for-github
+          clojure -X:test github.core.alpha.actions-helper.telegram/send-job-digest

@@ -2,18 +2,21 @@
  :deps
  {
   ;;
-  seancorfield/clj-new {:mvn/version "1.1.216"}
+  seancorfield/clj-new {:mvn/version "1.1.309"}
 
 
   ;;
-  ajchemist/tools.github.alpha {:git/url "https://github.com/ajchemist/tools.github.alpha"
-  me.raynes/conch              {:mvn/version "0.8.0"}
-  org.clojure/tools.cli        {:mvn/version "1.0.194"}
-                                :sha     "12afb72903e87451f13f5ddb7fc566a8a4e194ec"}
+  ajchemist/github.clj.alpha {:mvn/version "2021.156.33133"}
+  me.raynes/conch            {:mvn/version "0.8.0"}
+  org.clojure/tools.cli      {:mvn/version "1.0.206"}
 
 
   ;; user.tools.deps.util.shell
   user.tools.deps.alpha/user.tools.deps.alpha {:mvn/version "2020.105.15542"}
+
+
+  ajchemist/telegram.clj {:mvn/version "2021.90.30128"}
+  rum/rum                {:mvn/version "0.12.6"}
   }
 
 
@@ -23,8 +26,11 @@
 
 
   :test-runner
-  {:extra-deps {com.cognitect/test-runner
-                {:git/url "https://github.com/cognitect-labs/test-runner"
-                 :sha     "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
-   :main-opts  ["-m" "cognitect.test-runner"
-                "-d" "src/test"]}}}
+  {
+   :extra-deps {io.github.cognitect-labs/test-runner
+                {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                 :sha     "9e35c979860c75555adaff7600070c60004a0f44"}}
+   :main-opts  ["-m" "cognitect.test-runner"]
+   :exec-fn    cognitect.test-runner.api/test
+   :exec-args  {:dirs ["src/test"]}
+   }}}

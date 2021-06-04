@@ -21,53 +21,11 @@ jobs:
       #     check-name: This is a report name
       #     github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup clj-kondo
-        uses: DeLaGuardo/setup-clj-kondo@v1
+        uses: DeLaGuardo/setup-clj-kondo@master
         with:
-          version: '2020.09.09'
+          version: '2021.06.01'
       - name: Lint
         run: |
           clj-kondo --lint src/core
           # --config .clj-kondo/config.edn
-
-
-  eastwood__ubuntu-latest:
-    name: eastwood@ubuntu-latest
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-
-      - name: Cache local maven repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-
-      - name: Cache gitlibs
-        uses: actions/cache@v2
-        with:
-          path: ~/.gitlibs
-          key: ${{ runner.os }}-gitlibs-${{ hashFiles('**/deps.edn') }}
-          restore-keys: |
-            ${{ runner.os }}-gitlibs-
-
-
-      - name: Set up jdk
-        uses: actions/setup-java@v1
-        with:
-          java-version: '11'
-          java-package: 'jdk'
-
-
-      - name: Set up clojure-cli
-        uses: DeLaGuardo/setup-clojure@2.0
-        with:
-          tools-deps: '1.10.1.561'
-
-
-      - name: Run eastwood
-        run: clojure -A:eastwood
 <%={{ }}=%>

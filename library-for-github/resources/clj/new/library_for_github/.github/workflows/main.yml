@@ -15,13 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ "8", "11" ]
+        java: [ "11" ]
         clojure: [ "1.9", "1.10" ]
     name: test @ JDK = ${{ matrix.java }} CLJ = ${{ matrix.clojure }}
     steps:
       - uses: actions/checkout@v2
-
-
       - name: Cache local maven repository
         uses: actions/cache@v2
         with:
@@ -29,8 +27,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-
-
       - name: Cache gitlibs
         uses: actions/cache@v2
         with:
@@ -47,15 +43,25 @@ jobs:
 
 
       - name: Set up clojure-cli
-        uses: DeLaGuardo/setup-clojure@2.0
+        uses: DeLaGuardo/setup-clojure@master
         with:
-          tools-deps: '1.10.1.561'
+          cli: "1.10.3.855"
 
 
       - name: Test runner
         env:
-          TESTOPT: "-R:${{ matrix.clojure }} -A:provided:test:test-runner"
+          TESTOPT: "-X:${{ matrix.clojure }}:provided:test:test-runner"
         run: clojure $TESTOPT
+
+
+      - name: Job digest -> telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+          JOB_CONTEXT: ${{ toJSON(job) }}
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: |
+          clojure -X:provided:test github.core.alpha.actions-helper.telegram/send-job-digest
 
 
   package:
@@ -93,14 +99,14 @@ jobs:
 
 
       - name: Set up clojure-cli
-        uses: DeLaGuardo/setup-clojure@2.0
+        uses: DeLaGuardo/setup-clojure@master
         with:
-          tools-deps: '1.10.1.561'
+          cli: "1.10.3.855"
 
 
 <%={{ }}=%>
       - name: Make package
-        run: clojure -R:1.10 -A:provided:test -m user.tools.deps.script.package -r {{raw-name}}
+        run: clojure -M:1.10:provided:test -m user.tools.deps.script.package -r {{raw-name}}
 {{=<% %>=}}
 
 
@@ -116,9 +122,19 @@ jobs:
           git config --local user.name "aJchemist"
           git config --local user.email "1694505+aJchemist@users.noreply.github.com"
           git add -u -- pom.xml
-          git commit -m "$(clojure -A:provided:test -m user.apache.maven.script.get-pom-version) [ci skip]"
+          git commit -m "$(clojure -M:provided:test -m user.apache.maven.script.get-pom-version) [ci skip]"
           git remote -v
           git push
+
+
+      - name: Job digest -> telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+          JOB_CONTEXT: ${{ toJSON(job) }}
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: |
+          clojure -X:provided:test github.core.alpha.actions-helper.telegram/send-job-digest
 
 
       - uses: 8398a7/action-slack@v3.5.0

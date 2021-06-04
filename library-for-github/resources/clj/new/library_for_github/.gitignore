@@ -3,6 +3,8 @@
 .eastwood
 out
 cljs-test-runner-out
+.clj-kondo/.cache
+*.build_artifacts.txt
 /target
 .ci/deploy-key
 .ci/deploy-key.pub

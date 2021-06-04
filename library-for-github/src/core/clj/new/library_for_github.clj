@@ -6,7 +6,7 @@
    [clojure.tools.cli :as cli]
    [clj.new.templates :as t]
    [user.tools.deps.util.shell :refer [*sh-dir* dosh]]
-   [user.tools.github.alpha :as github]
+   [github.core.alpha :as github]
    ))
 
 
@@ -23,7 +23,9 @@
     :validate [#(number? (str/index-of % ":")) "Basic-auth string must be a \"user:password\""]]
    [nil "--clojars-username USERNAME" "Clojars username"]
    [nil "--clojars-password PASSWORD" "Clojars password"]
-   [nil "--slack-webhook-url SLACK_WEBHOOK_URL" "Slack webhook url"]])
+   [nil "--slack-webhook-url SLACK_WEBHOOK_URL" "Slack webhook url"]
+   [nil "--telegram-token TELEGRAM_TOKEN" "Telegram token"]
+   [nil "--telegram-to TELEGRAM_TO" "Telegram to"]])
 
 
 ;; * fns
@@ -80,8 +82,8 @@
 (defn github-repo-actions-put-secret
   "Workaround IllegalAccessError when using JNI library"
   [owner repo secret-name secret-value key key-id basic-auth]
-  (dosh "clojure" "-Srepro" "-Sdeps" "{:deps {ajchemist/tools.github.alpha {:git/url \"https://github.com/ajchemist/tools.github.alpha\" :sha \"75338a47308667240b6760992a0b5c04a76f0cf7\"}}}"
-        "-M" "-m" "user.tools.github.alpha.script.repo-actions" "put-secret"
+  (dosh "clojure" "-Srepro" "-Sdeps" "{:deps {ajchemist/github.clj.alpha {:git/url \"https://github.com/ajchemist/github.clj.alpha\" :sha \"dade5f71e94104c1b487e774aec0583eedb670be\"}}}"
+        "-M" "-m" "github.core.alpha.script.repo-actions" "put-secret"
         "--owner" owner
         "--repo" repo
         "--secret-name" secret-name
@@ -102,7 +104,9 @@
      github-repository
      clojars-username
      clojars-password
-     slack-webhook-url]
+     slack-webhook-url
+     telegram-token
+     telegram-to]
     :as _options}]
   (let [[owner repo] (str/split github-repository #"/" 2)]
     ;; validate parsed-opts
@@ -118,7 +122,9 @@
       (binding [*sh-dir* (System/getProperty "java.io.tmpdir")]
         (github-repo-actions-put-secret owner repo "CLOJARS_USERNAME" clojars-username key key_id basic-auth)
         (github-repo-actions-put-secret owner repo "CLOJARS_PASSWORD" clojars-password key key_id basic-auth)
-        (github-repo-actions-put-secret owner repo "SLACK_WEBHOOK_URL" slack-webhook-url key key_id basic-auth))
+        (github-repo-actions-put-secret owner repo "SLACK_WEBHOOK_URL" slack-webhook-url key key_id basic-auth)
+        (github-repo-actions-put-secret owner repo "TELEGRAM_TOKEN" telegram-token key key_id basic-auth)
+        (github-repo-actions-put-secret owner repo "TELEGRAM_TO" telegram-to key key_id basic-auth))
       (binding [*sh-dir* dir]
         (dosh "git" "init")
         (dosh "git" "remote" "add" "-f" "origin" (str "git@github.com:" github-repository))))))
@@ -134,8 +140,10 @@
       [".ci/settings.xml" (render ".ci/settings.xml" data)]
       [".gitignore" (render ".gitignore" data)]
       [".dir-locals.el" (render ".dir-locals.el" data)]
+      [".clj-kondo/config.edn" (render ".clj-kondo/config.edn" data)]
       ;;
       ["deps.edn" (render "deps.edn" data)]
+      ;;
       "src/core"
       "src/test"
       ["src/test/user.clj" (render "user.clj" data)])
